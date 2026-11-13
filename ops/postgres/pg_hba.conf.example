@@ -1,0 +1,23 @@
+# ─────────────────────────────────────────────────────────────────────────
+#  Эталонная конфигурация pg_hba.conf после усиления защиты.
+#  Полный файл лежит в D:\PostDOP\pg_hba.conf (вне репозитория).
+#  Применение: заменить блок «TYPE DATABASE USER ADDRESS METHOD» и
+#  перезапустить службу postgresql-X64-18.
+# ─────────────────────────────────────────────────────────────────────────
+
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# Unix-сокет (на Windows не используется, но правило должно быть безопасным)
+local   all             all                                     scram-sha-256
+
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            scram-sha-256
+
+# IPv6 local connections:
+host    all             all             ::1/128                 scram-sha-256
+
+# Репликация не используется — доступ отключён.
+# host  replication     all             127.0.0.1/32            scram-sha-256
+# host  replication     all             ::1/128                 scram-sha-256
+
+# Удалённые подключения запрещены: сервер слушает только localhost.
