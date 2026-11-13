@@ -13,7 +13,7 @@ export const REFRESH_COOKIE_NAME = 'ht_refresh';
 function refreshCookieOptions(): CookieOptions {
   return {
     httpOnly: true,
-    secure: config.isProd,
+    secure: config.cookieSecure,
     sameSite: 'strict',
     path: '/api/v1/auth',
     maxAge: config.REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000,
@@ -23,7 +23,7 @@ function refreshCookieOptions(): CookieOptions {
 function clearCookieOptions(): CookieOptions {
   return {
     httpOnly: true,
-    secure: config.isProd,
+    secure: config.cookieSecure,
     sameSite: 'strict',
     path: '/api/v1/auth',
   };

@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -81,6 +83,32 @@ export function createApp(): express.Express {
   app.use(`${API_PREFIX}/habits`, entriesRouter);
   app.use(`${API_PREFIX}/stats`, statsRouter);
   app.use(`${API_PREFIX}/backup`, backupRouter);
+
+  // Production-режим: API-сервер раздаёт собранный SPA (один процесс, один порт).
+  if (config.serveClient) {
+    const clientDir = fileURLToPath(new URL('../../client/dist', import.meta.url));
+
+    app.use(
+      express.static(clientDir, {
+        index: false,
+        maxAge: '1h',
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('index.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
+          }
+        },
+      }),
+    );
+
+    // SPA-фолбэк: любой GET не под /api отдаёт index.html (клиентский роутинг).
+    app.use((req, res, next) => {
+      if (req.method !== 'GET' || req.path.startsWith('/api')) {
+        next();
+        return;
+      }
+      res.sendFile(path.join(clientDir, 'index.html'));
+    });
+  }
 
   app.use(notFound);
   app.use(errorHandler);

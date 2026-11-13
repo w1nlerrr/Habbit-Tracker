@@ -14,7 +14,7 @@
   "scripts": {
     "build:shared": "npm run build --workspace @habit/shared",
     "dev:server": "npm run dev --workspace @habit/server",
-    "build": "npm run build:shared && npm run build --workspace @habit/server",
+    "build": "npm run build:shared && npm run build --workspace @habit/server && npm run build --workspace @habit/client",
     "typecheck": "npm run build:shared && npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "db:migrate": "npm run db:migrate --workspace @habit/server",

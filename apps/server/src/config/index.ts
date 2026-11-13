@@ -34,6 +34,15 @@ const envSchema = z.object({
 
   BACKUP_DIR: z.string().default('./data/backups'),
   BACKUP_KEEP_DAYS: z.coerce.number().int().min(1).max(3650).default(14),
+
+  /** Раздавать ли собранный SPA с API-сервера (production / launcher). */
+  SERVE_CLIENT: z.enum(['true', 'false']).optional(),
+
+  /**
+   * Флаг Secure для refresh-cookie.
+   * По умолчанию включён в production; для локального HTTP-запуска ставится false.
+   */
+  COOKIE_SECURE: z.enum(['true', 'false']).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -52,6 +61,14 @@ export const config = Object.freeze({
   isDev: parsed.data.NODE_ENV === 'development',
   isTest: parsed.data.NODE_ENV === 'test',
   isProd: parsed.data.NODE_ENV === 'production',
+  serveClient:
+    parsed.data.SERVE_CLIENT === undefined
+      ? parsed.data.NODE_ENV === 'production'
+      : parsed.data.SERVE_CLIENT === 'true',
+  cookieSecure:
+    parsed.data.COOKIE_SECURE === undefined
+      ? parsed.data.NODE_ENV === 'production'
+      : parsed.data.COOKIE_SECURE === 'true',
 });
 
 export type AppConfig = typeof config;
