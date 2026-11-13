@@ -109,6 +109,21 @@ export const habitReorderSchema = z.object({
     .max(200),
 });
 
+/** Архивация или восстановление привычки. */
+export const habitArchiveSchema = z.object({
+  archived: z.boolean(),
+});
+
+/** Булевы значения в query-параметрах приходят строками. */
+export const booleanQuerySchema = z
+  .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+  .transform((value) => value === true || value === 'true' || value === '1');
+
+export const habitListQuerySchema = z.object({
+  includeArchived: booleanQuerySchema.default(false),
+});
+
+
 /* ───────────────────────────── Отметки ───────────────────────────── */
 
 export const entryUpsertSchema = z.object({
@@ -157,6 +172,8 @@ export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type HabitCreateInput = z.infer<typeof habitCreateSchema>;
 export type HabitUpdateInput = z.infer<typeof habitUpdateSchema>;
 export type HabitReorderInput = z.infer<typeof habitReorderSchema>;
+export type HabitArchiveInput = z.infer<typeof habitArchiveSchema>;
+export type HabitListQuery = z.infer<typeof habitListQuerySchema>;
 export type EntryUpsertInput = z.infer<typeof entryUpsertSchema>;
 export type DateRangeQuery = z.infer<typeof dateRangeQuerySchema>;
 export type MonthQuery = z.infer<typeof monthQuerySchema>;
