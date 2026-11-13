@@ -1,0 +1,184 @@
+// ─────────────────────────────────────────────────────────────
+//  Habit Tracker — схема базы данных (PostgreSQL 18)
+//  Сгенерированный клиент: src/generated/prisma (в .gitignore)
+// ─────────────────────────────────────────────────────────────
+
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum HabitFrequency {
+  daily
+  custom
+}
+
+enum BackupKind {
+  export
+  import
+  backup
+  restore
+}
+
+enum BackupStatus {
+  running
+  success
+  failed
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique @db.VarChar(254)
+  passwordHash String    @map("password_hash")
+  displayName  String    @map("display_name") @db.VarChar(80)
+  role         UserRole  @default(user)
+  timezone     String    @default("Europe/Moscow") @db.VarChar(64)
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  habits     Habit[]
+  entries    HabitEntry[]
+  sessions   Session[]
+  auditLogs  AuditLog[]
+  backupJobs BackupJob[]
+
+  @@map("users")
+}
+
+model Habit {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @map("user_id") @db.Uuid
+  title       String         @db.VarChar(120)
+  description String?        @db.VarChar(1000)
+  color       String         @default("#6366F1") @db.VarChar(7)
+  icon        String         @default("star") @db.VarChar(40)
+  frequency   HabitFrequency @default(daily)
+  startDate   DateTime       @map("start_date") @db.Date
+  sortOrder   Int            @default(0) @map("sort_order")
+  archivedAt  DateTime?      @map("archived_at") @db.Timestamptz(3)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schedule HabitScheduleDay[]
+  entries  HabitEntry[]
+  stats    HabitStats?
+
+  @@index([userId, sortOrder])
+  @@map("habits")
+}
+
+/// Расписание привычки: какие дни недели запланированы.
+/// weekday: 1 — понедельник … 7 — воскресенье.
+model HabitScheduleDay {
+  habitId String @map("habit_id") @db.Uuid
+  weekday Int
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@id([habitId, weekday])
+  @@map("habit_schedule_days")
+}
+
+/// Отметка о выполнении. Одна отметка на привычку в календарный день.
+model HabitEntry {
+  id        Int      @id @default(autoincrement())
+  habitId   String   @map("habit_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  entryDate DateTime @map("entry_date") @db.Date
+  note      String?  @db.VarChar(500)
+  source    String   @default("manual") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, entryDate])
+  @@index([habitId, entryDate(sort: Desc)])
+  @@index([userId, entryDate(sort: Desc)])
+  @@map("habit_entries")
+}
+
+/// Кэш агрегатов по привычке. Пересчитывается сервисом в транзакции отметки
+/// и командой полного пересчёта (admin/recalc).
+model HabitStats {
+  habitId       String    @id @map("habit_id") @db.Uuid
+  currentStreak Int       @default(0) @map("current_streak")
+  longestStreak Int       @default(0) @map("longest_streak")
+  totalDone     Int       @default(0) @map("total_done")
+  lastEntryDate DateTime? @map("last_entry_date") @db.Date
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@map("habit_stats")
+}
+
+/// Refresh-сессии. В базе хранится только SHA-256 хеш токена.
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash") @db.VarChar(64)
+  userAgent String?   @map("user_agent") @db.VarChar(255)
+  ip        String?   @db.VarChar(64)
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+/// Журнал действий (заполняется сервисами и триггерами на habits).
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    String?  @map("user_id") @db.Uuid
+  action    String   @db.VarChar(60)
+  entity    String?  @db.VarChar(40)
+  entityId  String?  @map("entity_id") @db.VarChar(64)
+  payload   Json?
+  ip        String?  @db.VarChar(64)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("audit_log")
+}
+
+/// Журнал резервного копирования и восстановления.
+model BackupJob {
+  id         Int          @id @default(autoincrement())
+  createdBy  String?      @map("created_by") @db.Uuid
+  kind       BackupKind
+  status     BackupStatus @default(running)
+  fileName   String?      @map("file_name") @db.VarChar(255)
+  sizeBytes  Int?         @map("size_bytes")
+  checksum   String?      @db.VarChar(64)
+  startedAt  DateTime     @default(now()) @map("started_at") @db.Timestamptz(3)
+  finishedAt DateTime?    @map("finished_at") @db.Timestamptz(3)
+  error      String?      @db.VarChar(1000)
+
+  createdByUser User? @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([startedAt(sort: Desc)])
+  @@map("backup_jobs")
+}
