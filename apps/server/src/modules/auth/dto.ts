@@ -1,14 +1,6 @@
-import type { User } from '../../generated/prisma/client.js';
-import type { UserRole } from '@habit/shared';
+import type { UserDto } from '@habit/shared';
 
-export type UserDto = {
-  id: string;
-  email: string;
-  displayName: string;
-  role: UserRole;
-  timezone: string;
-  createdAt: string;
-};
+import type { User } from '../../generated/prisma/client.js';
 
 /** Единственное место преобразования модели БД в публичное представление. */
 export function toUserDto(user: User): UserDto {
@@ -16,8 +8,9 @@ export function toUserDto(user: User): UserDto {
     id: user.id,
     email: user.email,
     displayName: user.displayName,
-    role: user.role as UserRole,
+    role: user.role === 'admin' ? 'admin' : 'user',
     timezone: user.timezone,
     createdAt: user.createdAt.toISOString(),
   };
 }
+

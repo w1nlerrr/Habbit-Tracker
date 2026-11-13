@@ -51,7 +51,7 @@ export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   displayName: displayNameSchema,
-  timezone: timezoneSchema.default('Europe/Moscow'),
+  timezone: timezoneSchema.optional(),
 });
 
 export const loginSchema = z.object({

@@ -61,7 +61,7 @@ export const authService = {
       email: input.email,
       passwordHash,
       displayName: input.displayName,
-      timezone: input.timezone,
+      timezone: input.timezone ?? 'Europe/Moscow',
     });
 
     const tokens = await issueSession(user, meta);

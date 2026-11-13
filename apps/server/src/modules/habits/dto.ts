@@ -1,30 +1,7 @@
-import type { HabitFrequency, Weekday } from '@habit/shared';
+import type { HabitDto, HabitFrequency, Weekday } from '@habit/shared';
 
 import { toIsoDate } from '../../domain/dates.js';
 import type { Habit, HabitScheduleDay, HabitStats } from '../../generated/prisma/client.js';
-
-export type HabitStatsDto = {
-  currentStreak: number;
-  longestStreak: number;
-  totalDone: number;
-  lastEntryDate: string | null;
-};
-
-export type HabitDto = {
-  id: string;
-  title: string;
-  description: string | null;
-  color: string;
-  icon: string;
-  frequency: HabitFrequency;
-  startDate: string;
-  sortOrder: number;
-  weekdays: Weekday[];
-  archivedAt: string | null;
-  stats: HabitStatsDto;
-  createdAt: string;
-  updatedAt: string;
-};
 
 export type HabitWithRelations = Habit & {
   schedule: HabitScheduleDay[];

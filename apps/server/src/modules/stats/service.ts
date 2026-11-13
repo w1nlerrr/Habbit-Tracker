@@ -91,6 +91,16 @@ export const statsService = {
 
     const streaks = habits.map((habit) => habit.stats?.currentStreak ?? 0);
 
+    const todayList = habits.map((habit) => ({
+      habitId: habit.id,
+      title: habit.title,
+      color: habit.color,
+      icon: habit.icon,
+      planned: isScheduledDay(weekdaysOf(habit), today),
+      done: done.get(habit.id)?.has(today) ?? false,
+      currentStreak: habit.stats?.currentStreak ?? 0,
+    }));
+
     return {
       today,
       habits: {
@@ -105,6 +115,7 @@ export const statsService = {
       week: aggregate(habits, done, weekStart, today),
       month: aggregate(habits, done, monthStart, today),
       totalDone: habits.reduce((sum, habit) => sum + (habit.stats?.totalDone ?? 0), 0),
+      todayList,
     };
   },
 

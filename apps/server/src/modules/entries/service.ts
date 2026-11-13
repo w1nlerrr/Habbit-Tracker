@@ -1,3 +1,5 @@
+import type { EntryDto, HabitStatsSnapshot } from '@habit/shared';
+
 import { ConflictError, ValidationError } from '../../errors/app-error.js';
 import {
   isIsoDate,
@@ -11,7 +13,6 @@ import { computeHabitStatistics } from '../../domain/streak.js';
 import { getOwnedHabit, type HabitRecord } from '../habits/access.js';
 import type { StatsData } from '../habits/repository.js';
 import { getActiveUser } from '../users/service.js';
-import type { EntryDto, HabitStatsSnapshot } from './dto.js';
 import { toEntryDto } from './dto.js';
 import { entriesRepository } from './repository.js';
 
