@@ -22,7 +22,7 @@ function LazyPage({ children }: { children: ReactElement }): ReactElement {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center py-24 text-indigo-600">
+        <div className="flex items-center justify-center py-24 text-primary-text">
           <Spinner className="size-8" />
         </div>
       }

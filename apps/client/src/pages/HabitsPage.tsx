@@ -13,12 +13,16 @@ import { statsApi } from '../api/stats';
 import { Button, Card, EmptyState, Spinner } from '../components/ui';
 import { HabitIcon } from '../components/ui/HabitIcon';
 import { HabitFormModal } from '../features/habits/HabitFormModal';
+import { habitAccent, withTint } from '../lib/colors';
+import { useTheme } from '../store/theme-context';
 
 export function HabitsPage(): React.ReactElement {
   const [showArchived, setShowArchived] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<HabitDto | null>(null);
   const queryClient = useQueryClient();
+  const { resolved } = useTheme();
+  const isDark = resolved === 'dark';
 
   const habitsQuery = useQuery({
     queryKey: ['habits', showArchived],
@@ -104,8 +108,8 @@ export function HabitsPage(): React.ReactElement {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Привычки</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-foreground">Привычки</h1>
+          <p className="mt-1 text-sm text-muted">
             Управляйте расписанием и отмечайте выполнение
           </p>
         </div>
@@ -130,12 +134,12 @@ export function HabitsPage(): React.ReactElement {
       </header>
 
       {habitsQuery.isLoading ? (
-        <div className="flex items-center justify-center py-24 text-indigo-600">
+        <div className="flex items-center justify-center py-24 text-primary-text">
           <Spinner className="size-8" />
         </div>
       ) : habitsQuery.isError ? (
         <Card className="p-6">
-          <p className="text-sm font-medium text-rose-600">Не удалось загрузить привычки</p>
+          <p className="text-sm font-medium text-danger">Не удалось загрузить привычки</p>
           <Button className="mt-4" onClick={() => void habitsQuery.refetch()}>
             Повторить
           </Button>
@@ -172,7 +176,10 @@ export function HabitsPage(): React.ReactElement {
                 <div className="flex items-start gap-3">
                   <span
                     className="flex size-11 shrink-0 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: `${habit.color}1a`, color: habit.color }}
+                    style={{
+                      backgroundColor: withTint(habit.color),
+                      color: habitAccent(habit.color, isDark),
+                    }}
                   >
                     <HabitIcon name={habit.icon} className="size-5" />
                   </span>
@@ -180,12 +187,12 @@ export function HabitsPage(): React.ReactElement {
                   <div className="min-w-0 flex-1">
                     <Link
                       to={`/habits/${habit.id}`}
-                      className="block truncate text-sm font-semibold text-slate-900 hover:text-indigo-600"
+                      className="block truncate text-sm font-semibold text-foreground hover:text-primary-text"
                     >
                       {habit.title}
                     </Link>
                     {habit.description ? (
-                      <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">
+                      <p className="mt-0.5 line-clamp-2 text-xs text-muted">
                         {habit.description}
                       </p>
                     ) : null}
@@ -194,13 +201,13 @@ export function HabitsPage(): React.ReactElement {
                       {habit.weekdays.map((day) => (
                         <span
                           key={day}
-                          className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600"
+                          className="rounded bg-surface-muted px-1.5 py-0.5 text-[10px] font-medium text-muted"
                         >
                           {WEEKDAY_LABELS[day]}
                         </span>
                       ))}
                       {isArchived ? (
-                        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                        <span className="rounded bg-warning/10 px-1.5 py-0.5 text-[10px] font-medium text-warning">
                           архив
                         </span>
                       ) : null}
@@ -208,22 +215,22 @@ export function HabitsPage(): React.ReactElement {
                   </div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 px-3 py-2 text-center">
+                <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-surface-muted px-3 py-2 text-center">
                   <div>
-                    <p className="text-sm font-bold text-slate-900">
+                    <p className="text-sm font-bold text-foreground">
                       {habit.stats.currentStreak}
                     </p>
-                    <p className="text-[10px] uppercase text-slate-500">серия</p>
+                    <p className="text-[10px] uppercase text-muted">серия</p>
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">
+                    <p className="text-sm font-bold text-foreground">
                       {habit.stats.longestStreak}
                     </p>
-                    <p className="text-[10px] uppercase text-slate-500">рекорд</p>
+                    <p className="text-[10px] uppercase text-muted">рекорд</p>
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">{habit.stats.totalDone}</p>
-                    <p className="text-[10px] uppercase text-slate-500">всего</p>
+                    <p className="text-sm font-bold text-foreground">{habit.stats.totalDone}</p>
+                    <p className="text-[10px] uppercase text-muted">всего</p>
                   </div>
                 </div>
 
@@ -270,7 +277,7 @@ export function HabitsPage(): React.ReactElement {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="ml-auto text-rose-600 hover:bg-rose-50"
+                    className="ml-auto text-danger hover:bg-danger/10"
                     aria-label="Удалить"
                     icon={<Trash2 className="size-4" />}
                     onClick={() => confirmRemove(habit)}

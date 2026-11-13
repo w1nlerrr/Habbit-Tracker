@@ -34,7 +34,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4"
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -42,14 +42,14 @@ export function Modal({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="ht-fade-in max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+      <div className="ht-fade-in max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-surface text-foreground shadow-xl">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <h2 className="text-base font-semibold text-foreground">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="rounded-lg p-1 text-slate-500 transition hover:bg-slate-100"
+            className="rounded-lg p-1 text-muted transition hover:bg-surface-muted hover:text-foreground"
           >
             <X className="size-5" />
           </button>
@@ -58,7 +58,7 @@ export function Modal({
         <div className="px-5 py-4">{children}</div>
 
         {footer ? (
-          <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-3">{footer}</div>
+          <div className="flex justify-end gap-2 border-t border-border px-5 py-3">{footer}</div>
         ) : null}
       </div>
     </div>

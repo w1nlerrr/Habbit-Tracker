@@ -6,6 +6,7 @@ import { Toaster } from 'sonner';
 
 import { router } from './router';
 import { AuthProvider } from './store/auth-context';
+import { ThemeProvider, useTheme } from './store/theme-context';
 import './styles/globals.css';
 
 const queryClient = new QueryClient({
@@ -18,6 +19,11 @@ const queryClient = new QueryClient({
   },
 });
 
+function ThemedToaster(): React.ReactElement {
+  const { resolved } = useTheme();
+  return <Toaster theme={resolved} position="top-right" richColors closeButton />;
+}
+
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error('Не найден корневой элемент #root');
@@ -25,11 +31,14 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-        <Toaster position="top-right" richColors closeButton />
-      </AuthProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <RouterProvider router={router} />
+          <ThemedToaster />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </StrictMode>,
 );
+

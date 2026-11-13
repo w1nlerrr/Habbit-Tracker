@@ -12,7 +12,9 @@ import { ApiError } from '../api/http';
 import { statsApi } from '../api/stats';
 import { Button, Card, CardHeader, EmptyState, Spinner } from '../components/ui';
 import { HabitIcon } from '../components/ui/HabitIcon';
+import { habitAccent, withTint } from '../lib/colors';
 import { useAuth } from '../store/auth-context';
+import { useTheme } from '../store/theme-context';
 
 function StatCard({
   label,
@@ -27,17 +29,20 @@ function StatCard({
   icon: React.ReactNode;
   accent: string;
 }): React.ReactElement {
+  const { resolved } = useTheme();
+  const isDark = resolved === 'dark';
+
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-          <p className="mt-1.5 text-2xl font-bold text-slate-900">{value}</p>
-          {hint ? <p className="mt-0.5 text-xs text-slate-500">{hint}</p> : null}
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
+          <p className="mt-1.5 text-2xl font-bold text-foreground">{value}</p>
+          {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
         </div>
         <span
           className="flex size-10 shrink-0 items-center justify-center rounded-xl"
-          style={{ backgroundColor: `${accent}1a`, color: accent }}
+          style={{ backgroundColor: withTint(accent, 18), color: habitAccent(accent, isDark) }}
         >
           {icon}
         </span>
@@ -48,9 +53,9 @@ function StatCard({
 
 function ProgressBar({ value }: { value: number }): React.ReactElement {
   return (
-    <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+    <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface-muted">
       <div
-        className="h-full rounded-full bg-indigo-500 transition-all"
+        className="h-full rounded-full bg-primary transition-all"
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
       />
     </div>
@@ -59,6 +64,8 @@ function ProgressBar({ value }: { value: number }): React.ReactElement {
 
 export function DashboardPage(): React.ReactElement {
   const { user } = useAuth();
+  const { resolved } = useTheme();
+  const isDark = resolved === 'dark';
   const queryClient = useQueryClient();
 
   const dashboardQuery = useQuery({
@@ -86,7 +93,7 @@ export function DashboardPage(): React.ReactElement {
 
   if (dashboardQuery.isLoading) {
     return (
-      <div className="flex items-center justify-center py-24 text-indigo-600">
+      <div className="flex items-center justify-center py-24 text-primary-text">
         <Spinner className="size-8" />
       </div>
     );
@@ -95,8 +102,8 @@ export function DashboardPage(): React.ReactElement {
   if (dashboardQuery.isError || !dashboardQuery.data) {
     return (
       <Card className="p-6">
-        <p className="text-sm font-medium text-rose-600">Не удалось загрузить статистику</p>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="text-sm font-medium text-danger">Не удалось загрузить статистику</p>
+        <p className="mt-1 text-sm text-muted">
           {dashboardQuery.error instanceof ApiError
             ? dashboardQuery.error.message
             : 'Проверьте соединение с сервером и повторите попытку.'}
@@ -116,10 +123,10 @@ export function DashboardPage(): React.ReactElement {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-foreground">
             Привет, {user?.displayName ?? 'друг'}!
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-muted">
             Сегодня {todayLabel}.{' '}
             {pending > 0
               ? `Осталось отметить ${pending}.`
@@ -183,7 +190,7 @@ export function DashboardPage(): React.ReactElement {
               }
             />
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-border">
               {data.todayList.map((habit) => {
                 const isToggling =
                   toggleMutation.isPending &&
@@ -193,14 +200,17 @@ export function DashboardPage(): React.ReactElement {
                   <li key={habit.habitId} className="flex items-center gap-3 px-5 py-3">
                     <span
                       className="flex size-10 shrink-0 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: `${habit.color}1a`, color: habit.color }}
+                      style={{
+                        backgroundColor: withTint(habit.color),
+                        color: habitAccent(habit.color, isDark),
+                      }}
                     >
                       <HabitIcon name={habit.icon} className="size-5" />
                     </span>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-slate-900">{habit.title}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="truncate text-sm font-medium text-foreground">{habit.title}</p>
+                      <p className="text-xs text-muted">
                         {habit.planned
                           ? 'Запланировано на сегодня'
                           : 'Не запланировано (можно отметить бонусом)'}
@@ -229,27 +239,27 @@ export function DashboardPage(): React.ReactElement {
           <div className="space-y-4 px-5 py-4">
             <div>
               <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="text-slate-600">Выполнение</span>
-                <span className="font-semibold text-slate-900">{data.week.completionPct}%</span>
+                <span className="text-muted">Выполнение</span>
+                <span className="font-semibold text-foreground">{data.week.completionPct}%</span>
               </div>
               <ProgressBar value={data.week.completionPct} />
-              <p className="mt-1.5 text-xs text-slate-500">
+              <p className="mt-1.5 text-xs text-muted">
                 {data.week.done} из {data.week.planned} запланированных дней
               </p>
             </div>
 
             <div>
               <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="text-slate-600">Месяц</span>
-                <span className="font-semibold text-slate-900">{data.month.completionPct}%</span>
+                <span className="text-muted">Месяц</span>
+                <span className="font-semibold text-foreground">{data.month.completionPct}%</span>
               </div>
               <ProgressBar value={data.month.completionPct} />
-              <p className="mt-1.5 text-xs text-slate-500">
+              <p className="mt-1.5 text-xs text-muted">
                 {data.month.done} из {data.month.planned} запланированных дней
               </p>
             </div>
 
-            <div className="rounded-xl bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
+            <div className="rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted">
               Всего выполнено за всё время: <strong>{data.totalDone}</strong>
             </div>
 

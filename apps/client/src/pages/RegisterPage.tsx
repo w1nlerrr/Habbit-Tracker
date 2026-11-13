@@ -45,21 +45,21 @@ export function RegisterPage(): React.ReactElement {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-page px-4 py-10 text-foreground">
       <div className="w-full max-w-md">
         <div className="mb-6 flex items-center justify-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-200">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/20">
             <Sparkles className="size-6" />
           </span>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Habit Tracker</h1>
-            <p className="text-sm text-slate-500">Начните формировать полезные привычки</p>
+            <h1 className="text-xl font-bold text-foreground">Habit Tracker</h1>
+            <p className="text-sm text-muted">Начните формировать полезные привычки</p>
           </div>
         </div>
 
         <Card className="p-6">
-          <h2 className="text-lg font-semibold text-slate-900">Создание аккаунта</h2>
-          <p className="mt-1 text-sm text-slate-500">Все данные хранятся только в вашем экземпляре</p>
+          <h2 className="text-lg font-semibold text-foreground">Создание аккаунта</h2>
+          <p className="mt-1 text-sm text-muted">Все данные хранятся только в вашем экземпляре</p>
 
           <form className="mt-5 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
             <Input
@@ -92,9 +92,9 @@ export function RegisterPage(): React.ReactElement {
             </Button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-slate-600">
+          <p className="mt-4 text-center text-sm text-muted">
             Уже есть аккаунт?{' '}
-            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link to="/login" className="font-medium text-primary-text transition hover:opacity-80">
               Войти
             </Link>
           </p>

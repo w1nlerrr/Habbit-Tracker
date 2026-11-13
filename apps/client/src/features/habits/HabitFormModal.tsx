@@ -130,23 +130,23 @@ export function HabitFormModal({
         />
 
         <div className="space-y-1.5">
-          <label htmlFor="habit-description" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="habit-description" className="block text-sm font-medium text-foreground">
             Описание (необязательно)
           </label>
           <textarea
             id="habit-description"
             rows={3}
             placeholder="Зачем эта привычка и как её выполнять"
-            className="w-full resize-none rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none"
+            className="w-full resize-none rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-sm transition placeholder:text-muted/70 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             {...register('description')}
           />
           {errors.description?.message ? (
-            <p className="text-xs text-rose-600">{errors.description.message}</p>
+            <p className="text-xs text-danger">{errors.description.message}</p>
           ) : null}
         </div>
 
         <div>
-          <p className="mb-1.5 text-sm font-medium text-slate-700">Цвет</p>
+          <p className="mb-1.5 text-sm font-medium text-foreground">Цвет</p>
           <div className="flex flex-wrap gap-2">
             {HABIT_COLORS.map((color) => (
               <button
@@ -155,7 +155,7 @@ export function HabitFormModal({
                 aria-label={`Цвет ${color}`}
                 aria-pressed={selectedColor === color}
                 className={`size-8 rounded-full border-2 transition ${
-                  selectedColor === color ? 'scale-110 border-slate-900' : 'border-transparent'
+                  selectedColor === color ? 'scale-110 border-foreground' : 'border-transparent'
                 }`}
                 style={{ backgroundColor: color }}
                 onClick={() => setValue('color', color, { shouldValidate: true })}
@@ -165,7 +165,7 @@ export function HabitFormModal({
         </div>
 
         <div>
-          <p className="mb-1.5 text-sm font-medium text-slate-700">Иконка</p>
+          <p className="mb-1.5 text-sm font-medium text-foreground">Иконка</p>
           <div className="grid grid-cols-7 gap-2">
             {HABIT_ICON_NAMES.map((icon) => (
               <button
@@ -175,8 +175,8 @@ export function HabitFormModal({
                 aria-pressed={selectedIcon === icon}
                 className={`flex h-9 items-center justify-center rounded-lg border transition ${
                   selectedIcon === icon
-                    ? 'border-indigo-500 bg-indigo-50 text-indigo-600'
-                    : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                    ? 'border-primary bg-primary/10 text-primary-text'
+                    : 'border-border text-muted hover:bg-surface-muted'
                 }`}
                 onClick={() => setValue('icon', icon, { shouldValidate: true })}
               >
@@ -187,7 +187,7 @@ export function HabitFormModal({
         </div>
 
         <div>
-          <p className="mb-1.5 text-sm font-medium text-slate-700">Расписание</p>
+          <p className="mb-1.5 text-sm font-medium text-foreground">Расписание</p>
           <div className="flex gap-2">
             <Button
               size="sm"
@@ -223,8 +223,8 @@ export function HabitFormModal({
                     aria-pressed={selectedWeekdays.includes(day)}
                     className={`h-8 rounded-lg px-2.5 text-xs font-medium transition ${
                       selectedWeekdays.includes(day)
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-primary text-white'
+                        : 'bg-surface-muted text-muted hover:bg-surface-muted'
                     }`}
                     onClick={() => toggleWeekday(day)}
                   >
@@ -233,7 +233,7 @@ export function HabitFormModal({
                 ))}
               </div>
               {errors.weekdays?.message ? (
-                <p className="mt-1 text-xs text-rose-600">{errors.weekdays.message}</p>
+                <p className="mt-1 text-xs text-danger">{errors.weekdays.message}</p>
               ) : null}
             </>
           ) : null}

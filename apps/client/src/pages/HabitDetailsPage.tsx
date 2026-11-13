@@ -14,6 +14,8 @@ import { ApiError } from '../api/http';
 import { statsApi } from '../api/stats';
 import { Button, Card, CardHeader, Spinner } from '../components/ui';
 import { HabitIcon } from '../components/ui/HabitIcon';
+import { HEAT_PALETTE, habitAccent, withTint, type HeatPalette } from '../lib/colors';
+import { useTheme } from '../store/theme-context';
 
 const HEATMAP_WEEKS = 12;
 
@@ -22,16 +24,24 @@ function isoWeekday(date: Date): number {
   return day === 0 ? 7 : day;
 }
 
-function heatColor(planned: boolean, done: boolean, future: boolean): string {
+function heatColor(
+  planned: boolean,
+  done: boolean,
+  future: boolean,
+  palette: HeatPalette,
+): string {
   if (future) return 'transparent';
-  if (!planned) return '#f1f5f9';
-  return done ? '#10b981' : '#e2e8f0';
+  if (!planned) return palette.empty;
+  return done ? palette.done : palette.missed;
 }
 
 export function HabitDetailsPage(): React.ReactElement {
   const { habitId = '' } = useParams<{ habitId: string }>();
   const [period, setPeriod] = useState<StatsPeriod>('week');
   const queryClient = useQueryClient();
+  const { resolved } = useTheme();
+  const heat = HEAT_PALETTE[resolved];
+  const isDark = resolved === 'dark';
 
   const habitQuery = useQuery({
     queryKey: ['habit', habitId],
@@ -86,7 +96,7 @@ export function HabitDetailsPage(): React.ReactElement {
 
   if (habitQuery.isLoading || statsQuery.isLoading) {
     return (
-      <div className="flex items-center justify-center py-24 text-indigo-600">
+      <div className="flex items-center justify-center py-24 text-primary-text">
         <Spinner className="size-8" />
       </div>
     );
@@ -95,7 +105,7 @@ export function HabitDetailsPage(): React.ReactElement {
   if (habitQuery.isError || !habitQuery.data || statsQuery.isError || !statsQuery.data) {
     return (
       <Card className="p-6">
-        <p className="text-sm font-medium text-rose-600">Не удалось загрузить привычку</p>
+        <p className="text-sm font-medium text-danger">Не удалось загрузить привычку</p>
         <Link to="/habits" className="mt-4 inline-block">
           <Button variant="secondary" icon={<ArrowLeft className="size-4" />}>
             К списку привычек
@@ -121,7 +131,7 @@ export function HabitDetailsPage(): React.ReactElement {
     <div className="space-y-6">
       <Link
         to="/habits"
-        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800"
+        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> К списку привычек
       </Link>
@@ -130,20 +140,20 @@ export function HabitDetailsPage(): React.ReactElement {
         <div className="flex items-start gap-3">
           <span
             className="flex size-12 shrink-0 items-center justify-center rounded-2xl"
-            style={{ backgroundColor: `${habit.color}1a`, color: habit.color }}
+            style={{ backgroundColor: withTint(habit.color), color: habitAccent(habit.color, isDark) }}
           >
             <HabitIcon name={habit.icon} className="size-6" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">{habit.title}</h1>
-            <p className="mt-0.5 text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-foreground">{habit.title}</h1>
+            <p className="mt-0.5 text-sm text-muted">
               {habit.description ?? 'Без описания'}
             </p>
             <div className="mt-1.5 flex flex-wrap gap-1">
               {habit.weekdays.map((day) => (
                 <span
                   key={day}
-                  className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600"
+                  className="rounded bg-surface-muted px-1.5 py-0.5 text-[10px] font-medium text-muted"
                 >
                   {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][day - 1]}
                 </span>
@@ -166,29 +176,29 @@ export function HabitDetailsPage(): React.ReactElement {
         <Card className="flex items-center gap-3 p-4">
           <Flame className="size-6 text-orange-500" />
           <div>
-            <p className="text-xl font-bold text-slate-900">{stats.currentStreak}</p>
-            <p className="text-xs text-slate-500">текущая серия</p>
+            <p className="text-xl font-bold text-foreground">{stats.currentStreak}</p>
+            <p className="text-xs text-muted">текущая серия</p>
           </div>
         </Card>
         <Card className="flex items-center gap-3 p-4">
-          <Trophy className="size-6 text-amber-500" />
+          <Trophy className="size-6 text-warning" />
           <div>
-            <p className="text-xl font-bold text-slate-900">{stats.longestStreak}</p>
-            <p className="text-xs text-slate-500">рекорд</p>
+            <p className="text-xl font-bold text-foreground">{stats.longestStreak}</p>
+            <p className="text-xs text-muted">рекорд</p>
           </div>
         </Card>
         <Card className="flex items-center gap-3 p-4">
-          <Target className="size-6 text-indigo-500" />
+          <Target className="size-6 text-primary-text" />
           <div>
-            <p className="text-xl font-bold text-slate-900">{stats.totalDone}</p>
-            <p className="text-xs text-slate-500">всего выполнено</p>
+            <p className="text-xl font-bold text-foreground">{stats.totalDone}</p>
+            <p className="text-xs text-muted">всего выполнено</p>
           </div>
         </Card>
         <Card className="flex items-center gap-3 p-4">
-          <Check className="size-6 text-emerald-500" />
+          <Check className="size-6 text-success" />
           <div>
-            <p className="text-xl font-bold text-slate-900">{stats.completionPct}%</p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xl font-bold text-foreground">{stats.completionPct}%</p>
+            <p className="text-xs text-muted">
               {period === 'week' ? 'за неделю' : 'за месяц'} ({stats.done}/{stats.planned})
             </p>
           </div>
@@ -221,7 +231,7 @@ export function HabitDetailsPage(): React.ReactElement {
 
         <div className="px-5 py-4">
           <div className="flex gap-2">
-            <div className="grid grid-rows-7 gap-1 text-[10px] leading-[14px] text-slate-400">
+            <div className="grid grid-rows-7 gap-1 text-[10px] leading-[14px] text-muted">
               {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((label) => (
                 <span key={label} className="h-3.5">
                   {label}
@@ -254,6 +264,7 @@ export function HabitDetailsPage(): React.ReactElement {
                         planned && !beforeStart,
                         done,
                         future || beforeStart,
+                        heat,
                       ),
                     }}
                   />
@@ -262,17 +273,17 @@ export function HabitDetailsPage(): React.ReactElement {
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-slate-500">
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted">
             <span className="flex items-center gap-1">
-              <span className="size-3 rounded-sm" style={{ backgroundColor: '#e2e8f0' }} />
+              <span className="size-3 rounded-sm" style={{ backgroundColor: heat.missed }} />
               пропущено
             </span>
             <span className="flex items-center gap-1">
-              <span className="size-3 rounded-sm" style={{ backgroundColor: '#10b981' }} />
+              <span className="size-3 rounded-sm" style={{ backgroundColor: heat.done }} />
               выполнено
             </span>
             <span className="flex items-center gap-1">
-              <span className="size-3 rounded-sm" style={{ backgroundColor: '#f1f5f9' }} />
+              <span className="size-3 rounded-sm" style={{ backgroundColor: heat.empty }} />
               не запланировано
             </span>
           </div>
@@ -281,22 +292,22 @@ export function HabitDetailsPage(): React.ReactElement {
 
       <Card>
         <CardHeader title="Детализация" subtitle={`${stats.from} — ${stats.to}`} />
-        <ul className="max-h-80 divide-y divide-slate-100 overflow-y-auto">
+        <ul className="max-h-80 divide-y divide-border overflow-y-auto">
           {stats.days.map((day) => (
             <li
               key={day.date}
               className="flex items-center justify-between gap-3 px-5 py-2 text-sm"
             >
-              <span className="text-slate-700">
+              <span className="text-foreground">
                 {format(new Date(`${day.date}T00:00:00`), 'd MMMM, EEEE', { locale: ru })}
               </span>
               <span
                 className={
                   !day.planned
-                    ? 'text-xs text-slate-400'
+                    ? 'text-xs text-muted'
                     : day.done
-                      ? 'text-xs font-medium text-emerald-600'
-                      : 'text-xs font-medium text-rose-500'
+                      ? 'text-xs font-medium text-success'
+                      : 'text-xs font-medium text-danger'
                 }
               >
                 {!day.planned ? 'не запланировано' : day.done ? 'выполнено' : 'пропущено'}

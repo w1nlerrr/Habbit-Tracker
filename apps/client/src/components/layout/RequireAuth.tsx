@@ -9,7 +9,7 @@ export function RequireAuth(): React.ReactElement {
 
   if (status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center text-indigo-600">
+      <div className="flex min-h-screen items-center justify-center text-primary-text">
         <Spinner className="size-8" />
       </div>
     );

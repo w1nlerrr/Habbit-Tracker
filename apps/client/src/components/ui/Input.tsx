@@ -17,7 +17,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className="space-y-1.5">
       {label ? (
-        <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
+        <label htmlFor={inputId} className="block text-sm font-medium text-foreground">
           {label}
         </label>
       ) : null}
@@ -28,19 +28,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         aria-invalid={error ? true : undefined}
         aria-describedby={error || hint ? `${inputId}-hint` : undefined}
         className={clsx(
-          'w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none',
-          error ? 'border-rose-400' : 'border-slate-300',
+          'w-full rounded-lg border bg-surface px-3 py-2 text-sm text-foreground shadow-sm transition placeholder:text-muted/70 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none',
+          error ? 'border-danger' : 'border-border-strong',
           className,
         )}
         {...rest}
       />
 
       {error ? (
-        <p id={`${inputId}-hint`} className="text-xs text-rose-600">
+        <p id={`${inputId}-hint`} className="text-xs text-danger">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${inputId}-hint`} className="text-xs text-slate-500">
+        <p id={`${inputId}-hint`} className="text-xs text-muted">
           {hint}
         </p>
       ) : null}

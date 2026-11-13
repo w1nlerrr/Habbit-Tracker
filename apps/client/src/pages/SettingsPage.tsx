@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import { authApi } from '../api/auth';
 import { ApiError } from '../api/http';
-import { Button, Card, CardHeader, Input } from '../components/ui';
+import { Button, Card, CardHeader, Input, ThemeModeSelect } from '../components/ui';
 import { BackupSection } from '../features/backup/BackupSection';
 import { useAuth } from '../store/auth-context';
 
@@ -48,8 +48,8 @@ export function SettingsPage(): React.ReactElement {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Настройки</h1>
-        <p className="mt-1 text-sm text-slate-500">Профиль, часовой пояс и данные аккаунта</p>
+        <h1 className="text-2xl font-bold text-foreground">Настройки</h1>
+        <p className="mt-1 text-sm text-muted">Профиль, часовой пояс и данные аккаунта</p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -73,14 +73,14 @@ export function SettingsPage(): React.ReactElement {
             />
 
             <div className="space-y-1.5">
-              <label htmlFor="timezone" className="block text-sm font-medium text-slate-700">
+              <label htmlFor="timezone" className="block text-sm font-medium text-foreground">
                 Часовой пояс
               </label>
               <select
                 id="timezone"
                 value={timezone}
                 onChange={(event) => setTimezone(event.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none"
+                className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm shadow-sm transition focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
               >
                 {TIMEZONES.map((zone) => (
                   <option key={zone} value={zone}>
@@ -88,7 +88,7 @@ export function SettingsPage(): React.ReactElement {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted">
                 Сейчас в браузере: {Intl.DateTimeFormat().resolvedOptions().timeZone}
               </p>
             </div>
@@ -102,16 +102,16 @@ export function SettingsPage(): React.ReactElement {
         <Card>
           <CardHeader title="Аккаунт" subtitle="Данные текущей сессии" />
           <div className="space-y-3 p-5 text-sm">
-            <p className="flex items-center gap-2 text-slate-600">
-              <Mail className="size-4 text-slate-400" />
+            <p className="flex items-center gap-2 text-muted">
+              <Mail className="size-4 text-muted" />
               {user?.email}
             </p>
-            <p className="flex items-center gap-2 text-slate-600">
-              <ShieldCheck className="size-4 text-slate-400" />
+            <p className="flex items-center gap-2 text-muted">
+              <ShieldCheck className="size-4 text-muted" />
               Роль: {user?.role === 'admin' ? 'администратор' : 'пользователь'}
             </p>
-            <p className="flex items-center gap-2 text-slate-600">
-              <Clock className="size-4 text-slate-400" />
+            <p className="flex items-center gap-2 text-muted">
+              <Clock className="size-4 text-muted" />
               Часовой пояс: {user?.timezone}
             </p>
 
@@ -124,6 +124,16 @@ export function SettingsPage(): React.ReactElement {
                 Выйти из аккаунта
               </Button>
             </div>
+          </div>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader
+            title="Оформление"
+            subtitle="Тема сохраняется в браузере и применяется до загрузки приложения"
+          />
+          <div className="p-5">
+            <ThemeModeSelect />
           </div>
         </Card>
 

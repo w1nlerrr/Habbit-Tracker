@@ -124,50 +124,50 @@ export function BackupSection(): React.ReactElement {
             />
           </div>
 
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted">
             Экспорт содержит все привычки, расписание и отметки. Файл проверяется по схеме при
             импорте, статистика пересчитывается заново.
           </p>
 
-          <div className="border-t border-slate-100 pt-4">
-            <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-slate-700">
-              <History className="size-4 text-slate-400" />
+          <div className="border-t border-border pt-4">
+            <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-foreground">
+              <History className="size-4 text-muted" />
               Журнал операций
             </p>
 
             {historyQuery.isLoading ? (
-              <div className="flex justify-center py-4 text-indigo-600">
+              <div className="flex justify-center py-4 text-primary-text">
                 <Spinner className="size-5" />
               </div>
             ) : history.length === 0 ? (
-              <p className="text-sm text-slate-500">Операций пока не было.</p>
+              <p className="text-sm text-muted">Операций пока не было.</p>
             ) : (
-              <ul className="divide-y divide-slate-100">
+              <ul className="divide-y divide-border">
                 {history.map((job) => (
                   <li key={job.id} className="flex items-center gap-3 py-2 text-sm">
                     {job.status === 'success' ? (
-                      <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
+                      <CheckCircle2 className="size-4 shrink-0 text-success" />
                     ) : job.status === 'failed' ? (
-                      <XCircle className="size-4 shrink-0 text-rose-500" />
+                      <XCircle className="size-4 shrink-0 text-danger" />
                     ) : (
-                      <AlertTriangle className="size-4 shrink-0 text-amber-500" />
+                      <AlertTriangle className="size-4 shrink-0 text-warning" />
                     )}
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-slate-800">
+                      <p className="truncate text-foreground">
                         {KIND_LABELS[job.kind] ?? job.kind}
                         {job.fileName ? (
-                          <span className="text-slate-400"> · {job.fileName}</span>
+                          <span className="text-muted"> · {job.fileName}</span>
                         ) : null}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-muted">
                         {format(new Date(job.startedAt), 'd MMM yyyy, HH:mm', { locale: ru })}
                         {' · '}
                         {formatSize(job.sizeBytes)}
                         {job.checksum ? ` · sha256: ${job.checksum.slice(0, 8)}…` : ''}
                       </p>
                       {job.error ? (
-                        <p className="truncate text-xs text-rose-500">{job.error}</p>
+                        <p className="truncate text-xs text-danger">{job.error}</p>
                       ) : null}
                     </div>
                   </li>
@@ -189,7 +189,7 @@ export function BackupSection(): React.ReactElement {
         }
       >
         {pending ? (
-          <div className="space-y-4 text-sm text-slate-600">
+          <div className="space-y-4 text-sm text-muted">
             <p>
               В файле <strong>{pending.habits.length}</strong> привычек и{' '}
               <strong>
@@ -198,9 +198,9 @@ export function BackupSection(): React.ReactElement {
               отметок.
             </p>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="font-medium text-slate-800">Добавить данные (merge)</p>
-              <p className="mt-1 text-xs text-slate-500">
+            <div className="rounded-xl border border-border bg-surface-muted p-3">
+              <p className="font-medium text-foreground">Добавить данные (merge)</p>
+              <p className="mt-1 text-xs text-muted">
                 Привычки с совпадающими названиями будут пропущены, остальные добавятся.
               </p>
               <Button
@@ -213,9 +213,9 @@ export function BackupSection(): React.ReactElement {
               </Button>
             </div>
 
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-3">
-              <p className="font-medium text-rose-800">Заменить всё (replace)</p>
-              <p className="mt-1 text-xs text-rose-600">
+            <div className="rounded-xl border border-danger/30 bg-danger/10 p-3">
+              <p className="font-medium text-danger">Заменить всё (replace)</p>
+              <p className="mt-1 text-xs text-danger">
                 Все текущие привычки и отметки будут удалены и восстановлены из файла.
               </p>
               <Button

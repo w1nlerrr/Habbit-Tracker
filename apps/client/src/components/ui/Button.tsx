@@ -7,11 +7,11 @@ type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md';
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-indigo-600 text-white shadow-sm hover:bg-indigo-500 active:bg-indigo-700',
+  primary: 'bg-primary text-white shadow-sm hover:bg-primary-hover active:opacity-90',
   secondary:
-    'border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-50 active:bg-slate-100',
-  ghost: 'text-slate-600 hover:bg-slate-100 active:bg-slate-200',
-  danger: 'bg-rose-600 text-white shadow-sm hover:bg-rose-500 active:bg-rose-700',
+    'border border-border-strong bg-surface text-foreground shadow-sm hover:bg-surface-muted active:bg-surface-muted',
+  ghost: 'text-muted hover:bg-surface-muted hover:text-foreground active:bg-surface-muted',
+  danger: 'bg-danger text-white shadow-sm hover:opacity-90 active:opacity-80',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

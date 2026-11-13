@@ -16,8 +16,8 @@ export function PagePlaceholder({
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
-        <p className="mt-1 text-sm text-slate-500">{description}</p>
+        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+        <p className="mt-1 text-sm text-muted">{description}</p>
       </header>
 
       <Card>
