@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { StatsQuery } from '@habit/shared';
+import type { ActivityQuery, StatsQuery } from '@habit/shared';
 
 import { requireAuth } from '../../middleware/authenticate.js';
 import { getParams, getQuery } from '../../middleware/validate.js';
@@ -27,6 +27,14 @@ export const statsController = {
     const { month } = getQuery<{ month: string }>(req);
 
     const data = await statsService.calendar(userId, month);
+    res.status(200).json(data);
+  },
+
+  async activity(req: Request, res: Response): Promise<void> {
+    const { userId } = requireAuth(req);
+    const { days } = getQuery<ActivityQuery>(req);
+
+    const data = await statsService.activity(userId, days);
     res.status(200).json(data);
   },
 };

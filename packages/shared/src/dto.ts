@@ -127,6 +127,24 @@ export type CalendarDto = {
   };
 };
 
+export type ActivityDayDto = {
+  date: string;
+  planned: number;
+  done: number;
+  completionPct: number;
+};
+
+export type ActivityDto = {
+  from: string;
+  to: string;
+  days: ActivityDayDto[];
+  totals: {
+    planned: number;
+    done: number;
+    completionPct: number;
+  };
+};
+
 /* ───────────────────────────── Ответы API ─────────────────────────── */
 
 export type LoginResponse = {

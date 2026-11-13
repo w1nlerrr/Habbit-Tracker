@@ -15,6 +15,7 @@ import { getOwnedHabit } from '../habits/access.js';
 import { habitsRepository } from '../habits/repository.js';
 import { getActiveUser } from '../users/service.js';
 import type {
+  ActivityDto,
   CalendarDto,
   DashboardDto,
   PeriodStatsDto,
@@ -65,6 +66,23 @@ function aggregate(
   }
 
   return { from, to, planned, done: doneCount, completionPct: completionPct(doneCount, planned) };
+}
+
+function summarizeDay(
+  habits: HabitWithRelations[],
+  done: Map<string, Set<IsoDate>>,
+  date: IsoDate,
+): { date: IsoDate; plannedCount: number; doneCount: number; completionPct: number } {
+  let plannedCount = 0;
+  let doneCount = 0;
+
+  for (const habit of habits) {
+    if (!isScheduledDay(weekdaysOf(habit), date)) continue;
+    plannedCount += 1;
+    if (done.get(habit.id)?.has(date) ?? false) doneCount += 1;
+  }
+
+  return { date, plannedCount, doneCount, completionPct: completionPct(doneCount, plannedCount) };
 }
 
 export const statsService = {
@@ -188,23 +206,7 @@ export const statsService = {
     );
     const done = groupByHabit(entries);
 
-    const days = eachDay(from, to).map((date) => {
-      let plannedCount = 0;
-      let doneCount = 0;
-
-      for (const habit of habits) {
-        if (!isScheduledDay(weekdaysOf(habit), date)) continue;
-        plannedCount += 1;
-        if (done.get(habit.id)?.has(date) ?? false) doneCount += 1;
-      }
-
-      return {
-        date,
-        plannedCount,
-        doneCount,
-        completionPct: completionPct(doneCount, plannedCount),
-      };
-    });
+    const days = eachDay(from, to).map((date) => summarizeDay(habits, done, date));
 
     const planned = days.reduce((sum, day) => sum + day.plannedCount, 0);
     const doneTotal = days.reduce((sum, day) => sum + day.doneCount, 0);
@@ -214,6 +216,40 @@ export const statsService = {
       from,
       to,
       days,
+      totals: {
+        planned,
+        done: doneTotal,
+        completionPct: completionPct(doneTotal, planned),
+      },
+    };
+  },
+
+  async activity(userId: string, days: number): Promise<ActivityDto> {
+    const user = await getActiveUser(userId);
+    const today = todayInTimezone(user.timezone);
+    const from = addDays(today, -(days - 1));
+
+    const habits = await habitsRepository.listByUser(userId, false);
+    const entries = await entriesRepository.listForUserInRange(
+      userId,
+      parseIsoDate(from),
+      parseIsoDate(today),
+    );
+    const done = groupByHabit(entries);
+
+    const rows = eachDay(from, today).map((date) => summarizeDay(habits, done, date));
+    const planned = rows.reduce((sum, row) => sum + row.plannedCount, 0);
+    const doneTotal = rows.reduce((sum, row) => sum + row.doneCount, 0);
+
+    return {
+      from,
+      to: today,
+      days: rows.map((row) => ({
+        date: row.date,
+        planned: row.plannedCount,
+        done: row.doneCount,
+        completionPct: row.completionPct,
+      })),
       totals: {
         planned,
         done: doneTotal,

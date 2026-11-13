@@ -148,6 +148,10 @@ export const monthQuerySchema = z.object({
   month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Ожидается месяц в формате ГГГГ-ММ'),
 });
 
+export const activityQuerySchema = z.object({
+  days: z.coerce.number().int().min(7, 'Минимум 7 дней').max(180, 'Максимум 180 дней').default(30),
+});
+
 export const statsPeriodSchema = z.enum(['week', 'month']);
 
 export const statsQuerySchema = z.object({
@@ -182,6 +186,7 @@ export type HabitListQuery = z.infer<typeof habitListQuerySchema>;
 export type EntryUpsertInput = z.infer<typeof entryUpsertSchema>;
 export type DateRangeQuery = z.infer<typeof dateRangeQuerySchema>;
 export type MonthQuery = z.infer<typeof monthQuerySchema>;
+export type ActivityQuery = z.infer<typeof activityQuerySchema>;
 export type StatsPeriod = z.infer<typeof statsPeriodSchema>;
 export type StatsQuery = z.infer<typeof statsQuerySchema>;
 export type PaginationQuery = z.infer<typeof paginationSchema>;
