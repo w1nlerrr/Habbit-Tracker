@@ -58,15 +58,23 @@ $env:PGCLIENTENCODING = 'UTF8'
 try {
     Write-Host "Applying roles and database setup as '$superUser'..."
 
-    & $psql -X -h $pgHost -p $pgPort -U $superUser -d postgres -v ON_ERROR_STOP=1 `
+    # psql пишет NOTICE в stderr; при ErrorActionPreference=Stop PowerShell
+    # превращает это в исключение. Перехватываем вывод и проверяем код возврата.
+    $previousPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    $psqlOutput = & $psql -X -h $pgHost -p $pgPort -U $superUser -d postgres -v ON_ERROR_STOP=1 `
         -v "owner_pass=$ownerPass" `
         -v "app_pass=$appPass" `
         -v "readonly_pass=$readonlyPass" `
         -v "backup_pass=$backupPass" `
-        -f $sqlFile
+        -f $sqlFile 2>&1
+    $psqlExitCode = $LASTEXITCODE
+    $ErrorActionPreference = $previousPreference
 
-    if ($LASTEXITCODE -ne 0) {
-        throw "psql failed with exit code $LASTEXITCODE"
+    $psqlOutput | ForEach-Object { Write-Host $_ }
+
+    if ($psqlExitCode -ne 0) {
+        throw "psql failed with exit code $psqlExitCode"
     }
 }
 finally {

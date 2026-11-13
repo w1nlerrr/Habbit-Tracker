@@ -19,6 +19,12 @@ apps/server/src/generated/
 data/
 ops/logs/
 ops/caddy/*.exe
+ops/caddy/*.zip
+ops/nssm/*.exe
+ops/nssm/*.zip
+ops/nssm/nssm-2.24/
+ops/caddy/data/
+ops/caddy/config/
 
 # IDE / OS
 .vscode/*
