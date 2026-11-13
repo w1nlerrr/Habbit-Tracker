@@ -150,6 +150,11 @@ export const monthQuerySchema = z.object({
 
 export const statsPeriodSchema = z.enum(['week', 'month']);
 
+export const statsQuerySchema = z.object({
+  period: statsPeriodSchema.default('week'),
+});
+
+
 export const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(LIMITS.pageSizeMax).default(20),
@@ -178,4 +183,5 @@ export type EntryUpsertInput = z.infer<typeof entryUpsertSchema>;
 export type DateRangeQuery = z.infer<typeof dateRangeQuerySchema>;
 export type MonthQuery = z.infer<typeof monthQuerySchema>;
 export type StatsPeriod = z.infer<typeof statsPeriodSchema>;
+export type StatsQuery = z.infer<typeof statsQuerySchema>;
 export type PaginationQuery = z.infer<typeof paginationSchema>;

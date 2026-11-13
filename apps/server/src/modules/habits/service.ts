@@ -10,27 +10,10 @@ import { ConflictError, NotFoundError, ValidationError } from '../../errors/app-
 import { parseIsoDate, toIsoDate, todayInTimezone } from '../../domain/dates.js';
 import { normalizeWeekdays } from '../../domain/schedule.js';
 import { computeHabitStatistics } from '../../domain/streak.js';
-import { authRepository } from '../auth/repository.js';
-import { habitsRepository, type HabitsRepository } from './repository.js';
+import { getActiveUser as requireUser } from '../users/service.js';
+import { getOwnedHabit as requireHabit } from './access.js';
+import { habitsRepository } from './repository.js';
 
-type HabitRecord = NonNullable<Awaited<ReturnType<HabitsRepository['findByIdForUser']>>>;
-
-async function requireUser(userId: string) {
-  const user = await authRepository.findById(userId);
-  if (!user || !user.isActive) {
-    throw new NotFoundError('Пользователь не найден или заблокирован');
-  }
-  return user;
-}
-
-/** Проверка владельца: чужая привычка неотличима от несуществующей (404). */
-async function requireHabit(userId: string, habitId: string): Promise<HabitRecord> {
-  const habit = await habitsRepository.findByIdForUser(habitId, userId);
-  if (!habit) {
-    throw new NotFoundError('Привычка не найдена');
-  }
-  return habit;
-}
 
 export const habitsService = {
   async list(userId: string, includeArchived: boolean) {
