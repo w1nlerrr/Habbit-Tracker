@@ -177,6 +177,31 @@ export type EntryRemoveResponse = {
   stats: HabitStatsSnapshot;
 };
 
+/* ─────────────────────── Резервное копирование ───────────────────── */
+
+export type BackupJobDto = {
+  id: number;
+  kind: 'export' | 'import' | 'backup' | 'restore';
+  status: 'running' | 'success' | 'failed';
+  fileName: string | null;
+  sizeBytes: number | null;
+  checksum: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+  error: string | null;
+};
+
+export type BackupHistoryResponse = {
+  items: BackupJobDto[];
+  total: number;
+};
+
+export type BackupImportResult = {
+  imported: number;
+  skipped: number;
+  mode: 'merge' | 'replace';
+};
+
 export type ApiErrorBody = {
   error: {
     code: string;

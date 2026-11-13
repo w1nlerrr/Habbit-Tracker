@@ -80,3 +80,46 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   return data as T;
 }
+
+export type DownloadResult = {
+  blob: Blob;
+  fileName: string;
+  checksum: string | null;
+};
+
+/** Скачивание файла с сервера (экспорт резервной копии). */
+export async function apiDownload(path: string): Promise<DownloadResult> {
+  const headers: Record<string, string> = {};
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
+  let response = await fetch(`${API_BASE}${path}`, { headers, credentials: 'include' });
+
+  if (response.status === 401 && refreshHandler) {
+    const refreshed = await refreshHandler();
+    if (refreshed) {
+      headers.Authorization = accessToken ? `Bearer ${accessToken}` : '';
+      response = await fetch(`${API_BASE}${path}`, { headers, credentials: 'include' });
+    }
+  }
+
+  if (!response.ok) {
+    const text = await response.text();
+    let message = 'Не удалось скачать файл';
+    try {
+      const body = JSON.parse(text) as ApiErrorBody;
+      message = body.error?.message ?? message;
+    } catch {
+      // тело не JSON — оставляем сообщение по умолчанию
+    }
+    throw new ApiError(response.status, 'DOWNLOAD_ERROR', message);
+  }
+
+  const disposition = response.headers.get('Content-Disposition') ?? '';
+  const match = /filename="([^"]+)"/.exec(disposition);
+
+  return {
+    blob: await response.blob(),
+    fileName: match?.[1] ?? 'backup.json',
+    checksum: response.headers.get('X-Backup-Sha256'),
+  };
+}

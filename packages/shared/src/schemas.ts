@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import {
   COLOR_PATTERN,
+  ENTRY_SOURCES,
   HABIT_FREQUENCIES,
   ISO_DATE_PATTERN,
   LIMITS,
@@ -164,6 +165,39 @@ export const paginationSchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(LIMITS.pageSizeMax).default(20),
 });
 
+/* ─────────────────────── Резервное копирование ───────────────────── */
+
+export const backupEntrySchema = z.object({
+  date: isoDateSchema,
+  note: z.string().max(LIMITS.habitNoteMax).nullish(),
+  source: z.enum(ENTRY_SOURCES).optional(),
+});
+
+export const backupHabitSchema = z.object({
+  title: z.string().trim().min(1).max(LIMITS.habitTitleMax),
+  description: z.string().max(LIMITS.habitDescriptionMax).nullish(),
+  color: colorSchema,
+  icon: z.string().trim().min(1).max(LIMITS.iconMax),
+  frequency: z.enum(HABIT_FREQUENCIES),
+  startDate: isoDateSchema,
+  sortOrder: z.number().int().min(0).max(10_000).optional(),
+  archivedAt: z.string().nullish(),
+  weekdays: z.array(weekdaySchema).min(1).max(7),
+  entries: z.array(backupEntrySchema).max(5_000),
+});
+
+export const backupFileSchema = z.object({
+  format: z.literal('habit-tracker-backup'),
+  version: z.literal(1),
+  exportedAt: z.string(),
+  habits: z.array(backupHabitSchema).max(200),
+});
+
+export const backupImportSchema = z.object({
+  mode: z.enum(['merge', 'replace']).default('merge'),
+  data: backupFileSchema,
+});
+
 /* ───────────────────────────── Параметры ─────────────────────────── */
 
 export const habitIdParamSchema = z.object({ id: uuidSchema });
@@ -190,3 +224,8 @@ export type ActivityQuery = z.infer<typeof activityQuerySchema>;
 export type StatsPeriod = z.infer<typeof statsPeriodSchema>;
 export type StatsQuery = z.infer<typeof statsQuerySchema>;
 export type PaginationQuery = z.infer<typeof paginationSchema>;
+
+export type BackupEntryInput = z.infer<typeof backupEntrySchema>;
+export type BackupHabitInput = z.infer<typeof backupHabitSchema>;
+export type BackupFileInput = z.infer<typeof backupFileSchema>;
+export type BackupImportInput = z.infer<typeof backupImportSchema>;

@@ -15,6 +15,7 @@ import { logger } from './infra/logger.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFound } from './middleware/not-found.js';
 import { authRouter } from './modules/auth/routes.js';
+import { backupRouter } from './modules/backup/routes.js';
 import { entriesRouter } from './modules/entries/routes.js';
 import { habitsRouter } from './modules/habits/routes.js';
 import { healthRouter } from './modules/health/routes.js';
@@ -79,6 +80,7 @@ export function createApp(): express.Express {
   app.use(`${API_PREFIX}/habits`, habitsRouter);
   app.use(`${API_PREFIX}/habits`, entriesRouter);
   app.use(`${API_PREFIX}/stats`, statsRouter);
+  app.use(`${API_PREFIX}/backup`, backupRouter);
 
   app.use(notFound);
   app.use(errorHandler);

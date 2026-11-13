@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { authApi } from '../api/auth';
 import { ApiError } from '../api/http';
 import { Button, Card, CardHeader, Input } from '../components/ui';
+import { BackupSection } from '../features/backup/BackupSection';
 import { useAuth } from '../store/auth-context';
 
 const TIMEZONES = [
@@ -126,17 +127,9 @@ export function SettingsPage(): React.ReactElement {
           </div>
         </Card>
 
-        <Card className="lg:col-span-2">
-          <CardHeader
-            title="Резервное копирование"
-            subtitle="Экспорт и восстановление данных пользователя"
-          />
-          <div className="p-5 text-sm text-slate-600">
-            Экспорт в JSON и восстановление из резервной копии будут добавлены на этапе
-            сопровождения программного продукта (УП ПМ04). Серверная часть уже имеет журнал
-            операций резервного копирования в таблице <code>backup_jobs</code>.
-          </div>
-        </Card>
+        <div className="lg:col-span-2">
+          <BackupSection />
+        </div>
       </div>
     </div>
   );
