@@ -6,10 +6,12 @@ import {
   Settings,
   Sparkles,
 } from 'lucide-react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import { Button } from '../ui';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { pageVariants } from '../../lib/motion';
 import { useAuth } from '../../store/auth-context';
 
 const navItems = [
@@ -46,6 +48,7 @@ function NavItems(): React.ReactElement {
 
 export function AppLayout(): React.ReactElement {
   const { user, logout } = useAuth();
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-page text-foreground lg:flex">
@@ -108,7 +111,17 @@ export function AppLayout(): React.ReactElement {
         </header>
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-8">
-          <Outlet />
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={location.pathname}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

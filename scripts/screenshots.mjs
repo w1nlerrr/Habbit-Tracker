@@ -56,6 +56,12 @@ await page.goto(`${BASE_URL}/habits`, { waitUntil: 'networkidle' });
 await page.waitForTimeout(700);
 await shot('03-habits');
 
+await page.getByRole('button', { name: 'Новая привычка' }).click();
+await page.waitForTimeout(450);
+await shot('07-habit-form');
+await page.keyboard.press('Escape');
+await page.waitForTimeout(250);
+
 await page.locator('a[href^="/habits/"]').first().click();
 await page.waitForTimeout(1_500);
 await shot('04-habit-details');

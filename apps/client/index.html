@@ -6,22 +6,7 @@
     <meta name="description" content="Habit Tracker — трекер привычек: серии, календарь активности и статистика" />
     <meta name="theme-color" id="theme-color" content="#f8fafc" />
     <title>Habit Tracker — трекер привычек</title>
-    <script>
-      // Применяем сохранённую тему до загрузки бандла — без вспышки белого.
-      (function () {
-        try {
-          var stored = localStorage.getItem('ht-theme') || 'system';
-          var dark =
-            stored === 'dark' ||
-            (stored === 'system' &&
-              window.matchMedia('(prefers-color-scheme: dark)').matches);
-          document.documentElement.classList.toggle('dark', dark);
-          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
-        } catch (error) {
-          /* localStorage может быть недоступен */
-        }
-      })();
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

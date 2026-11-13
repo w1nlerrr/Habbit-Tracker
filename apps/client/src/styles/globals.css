@@ -136,3 +136,67 @@ body {
   animation: ht-fade-in 0.18s ease-out;
 }
 
+/* Плавная смена темы: класс добавляется на ~300 мс при переключении. */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color 240ms ease,
+    border-color 240ms ease,
+    color 240ms ease,
+    fill 240ms ease,
+    stroke 240ms ease !important;
+}
+
+/* Мерцание скелетонов. */
+@keyframes ht-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.ht-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--fg) 7%, transparent),
+    transparent
+  );
+  animation: ht-shimmer 1.6s ease-in-out infinite;
+}
+
+/* «Пружина» для галочки выполнения. */
+@keyframes ht-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.ht-pop {
+  animation: ht-pop 320ms var(--ease-spring);
+}
+
+/* Уважение к системной настройке «уменьшить движение». */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+

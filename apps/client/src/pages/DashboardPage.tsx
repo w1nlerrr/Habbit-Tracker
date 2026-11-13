@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { CalendarCheck, Check, Flame, Target, TrendingUp } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -10,9 +11,10 @@ import type { TodayHabitDto } from '@habit/shared';
 import { entriesApi } from '../api/entries';
 import { ApiError } from '../api/http';
 import { statsApi } from '../api/stats';
-import { Button, Card, CardHeader, EmptyState, Spinner } from '../components/ui';
+import { Button, Card, CardHeader, EmptyState, Skeleton } from '../components/ui';
 import { HabitIcon } from '../components/ui/HabitIcon';
 import { habitAccent, withTint } from '../lib/colors';
+import { listContainer, listItem } from '../lib/motion';
 import { useAuth } from '../store/auth-context';
 import { useTheme } from '../store/theme-context';
 
@@ -33,21 +35,23 @@ function StatCard({
   const isDark = resolved === 'dark';
 
   return (
-    <Card className="p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-          <p className="mt-1.5 text-2xl font-bold text-foreground">{value}</p>
-          {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
+    <motion.div variants={listItem}>
+      <Card className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
+            <p className="mt-1.5 text-2xl font-bold text-foreground">{value}</p>
+            {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
+          </div>
+          <span
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl"
+            style={{ backgroundColor: withTint(accent, 18), color: habitAccent(accent, isDark) }}
+          >
+            {icon}
+          </span>
         </div>
-        <span
-          className="flex size-10 shrink-0 items-center justify-center rounded-xl"
-          style={{ backgroundColor: withTint(accent, 18), color: habitAccent(accent, isDark) }}
-        >
-          {icon}
-        </span>
-      </div>
-    </Card>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -55,7 +59,7 @@ function ProgressBar({ value }: { value: number }): React.ReactElement {
   return (
     <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface-muted">
       <div
-        className="h-full rounded-full bg-primary transition-all"
+        className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out"
         style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
       />
     </div>
@@ -93,8 +97,17 @@ export function DashboardPage(): React.ReactElement {
 
   if (dashboardQuery.isLoading) {
     return (
-      <div className="flex items-center justify-center py-24 text-primary-text">
-        <Spinner className="size-8" />
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {[0, 1, 2, 3].map((index) => (
+            <Skeleton key={index} className="h-24" />
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Skeleton className="h-72 lg:col-span-2" />
+          <Skeleton className="h-72" />
+        </div>
       </div>
     );
   }
@@ -140,7 +153,12 @@ export function DashboardPage(): React.ReactElement {
         </Link>
       </header>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <motion.section
+        variants={listContainer}
+        initial="hidden"
+        animate="show"
+        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      >
         <StatCard
           label="Лучшая серия"
           value={`${data.streaks.best} дн.`}
@@ -169,7 +187,7 @@ export function DashboardPage(): React.ReactElement {
           icon={<CalendarCheck className="size-5" />}
           accent="#0EA5E9"
         />
-      </section>
+      </motion.section>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -190,14 +208,23 @@ export function DashboardPage(): React.ReactElement {
               }
             />
           ) : (
-            <ul className="divide-y divide-border">
+            <motion.ul
+              variants={listContainer}
+              initial="hidden"
+              animate="show"
+              className="divide-y divide-border"
+            >
               {data.todayList.map((habit) => {
                 const isToggling =
                   toggleMutation.isPending &&
                   toggleMutation.variables?.habit.habitId === habit.habitId;
 
                 return (
-                  <li key={habit.habitId} className="flex items-center gap-3 px-5 py-3">
+                  <motion.li
+                    variants={listItem}
+                    key={habit.habitId}
+                    className="flex items-center gap-3 px-5 py-3"
+                  >
                     <span
                       className="flex size-10 shrink-0 items-center justify-center rounded-xl"
                       style={{
@@ -222,15 +249,25 @@ export function DashboardPage(): React.ReactElement {
                       size="sm"
                       variant={habit.done ? 'primary' : 'secondary'}
                       loading={isToggling}
-                      icon={<Check className="size-4" />}
+                      icon={
+                        <motion.span
+                          key={habit.done ? 'done' : 'todo'}
+                          initial={{ scale: 0.6, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: 'spring', stiffness: 420, damping: 24 }}
+                          className="inline-flex"
+                        >
+                          <Check className="size-4" />
+                        </motion.span>
+                      }
                       onClick={() => toggleMutation.mutate({ habit, date: data.today })}
                     >
                       {habit.done ? 'Выполнено' : 'Отметить'}
                     </Button>
-                  </li>
+                  </motion.li>
                 );
               })}
-            </ul>
+            </motion.ul>
           )}
         </Card>
 

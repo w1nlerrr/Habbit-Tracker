@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -42,6 +43,7 @@ function readStoredMode(): ThemeMode {
 export function ThemeProvider({ children }: { children: ReactNode }): React.ReactElement {
   const [mode, setModeState] = useState<ThemeMode>(() => readStoredMode());
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme());
+  const isFirstRender = useRef(true);
 
   const resolved: ResolvedTheme = mode === 'system' ? systemTheme : mode;
 
@@ -64,6 +66,16 @@ export function ThemeProvider({ children }: { children: ReactNode }): React.Reac
     if (meta) {
       meta.setAttribute('content', resolved === 'dark' ? '#0b1220' : '#f8fafc');
     }
+
+    // Плавная смена цветов только при переключении, не при первой отрисовке.
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return undefined;
+    }
+
+    root.classList.add('theme-transition');
+    const timer = window.setTimeout(() => root.classList.remove('theme-transition'), 320);
+    return () => window.clearTimeout(timer);
   }, [resolved]);
 
   const setMode = useCallback((next: ThemeMode) => {

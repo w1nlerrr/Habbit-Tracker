@@ -5,5 +5,6 @@ export { EmptyState } from './EmptyState';
 export { Input } from './Input';
 export type { InputProps } from './Input';
 export { Modal } from './Modal';
+export { Skeleton } from './Skeleton';
 export { Spinner } from './Spinner';
 export { ThemeModeSelect, ThemeToggle } from './ThemeToggle';

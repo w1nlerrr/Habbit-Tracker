@@ -41,7 +41,7 @@ export function Button({
     <button
       type={type}
       className={clsx(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98]',
         variantStyles[variant],
         sizeStyles[size],
         className,

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Archive, ArchiveRestore, Check, Pencil, Plus, Trash2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -10,9 +11,10 @@ import { entriesApi } from '../api/entries';
 import { habitsApi } from '../api/habits';
 import { ApiError } from '../api/http';
 import { statsApi } from '../api/stats';
-import { Button, Card, EmptyState, Spinner } from '../components/ui';
+import { Button, Card, EmptyState, Skeleton } from '../components/ui';
 import { HabitIcon } from '../components/ui/HabitIcon';
 import { HabitFormModal } from '../features/habits/HabitFormModal';
+import { cardVariants } from '../lib/motion';
 import { habitAccent, withTint } from '../lib/colors';
 import { useTheme } from '../store/theme-context';
 
@@ -134,8 +136,10 @@ export function HabitsPage(): React.ReactElement {
       </header>
 
       {habitsQuery.isLoading ? (
-        <div className="flex items-center justify-center py-24 text-primary-text">
-          <Spinner className="size-8" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {[0, 1, 2].map((index) => (
+            <Skeleton key={index} className="h-56" />
+          ))}
         </div>
       ) : habitsQuery.isError ? (
         <Card className="p-6">
@@ -165,14 +169,24 @@ export function HabitsPage(): React.ReactElement {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {habits.map((habit) => {
+          <AnimatePresence initial={false}>
+            {habits.map((habit) => {
             const todayState = doneMap.get(habit.id);
             const isToggling =
               toggleMutation.isPending && toggleMutation.variables?.id === habit.id;
             const isArchived = habit.archivedAt !== null;
 
             return (
-              <Card key={habit.id} className="flex flex-col p-4">
+              <motion.div
+                key={habit.id}
+                layout
+                variants={cardVariants}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                className="flex"
+              >
+                <Card className="flex w-full flex-col p-4">
                 <div className="flex items-start gap-3">
                   <span
                     className="flex size-11 shrink-0 items-center justify-center rounded-xl"
@@ -283,9 +297,11 @@ export function HabitsPage(): React.ReactElement {
                     onClick={() => confirmRemove(habit)}
                   />
                 </div>
-              </Card>
+                </Card>
+              </motion.div>
             );
           })}
+          </AnimatePresence>
         </div>
       )}
 
