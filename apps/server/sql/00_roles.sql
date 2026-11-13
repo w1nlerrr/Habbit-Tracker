@@ -5,27 +5,40 @@
 -- ─────────────────────────────────────────────────────────────────────────
 \set ON_ERROR_STOP on
 
--- 1. Роли БД ────────────────────────────────────────────────────────────────
+-- 1. Роли БД ──────────────────────────────────────────────────────────────
 SELECT format('CREATE ROLE ht_owner LOGIN PASSWORD %L', :'owner_pass')
-WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ht_owner')\gexec
+WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ht_owner')
+\gexec
 
 SELECT format('CREATE ROLE ht_app LOGIN PASSWORD %L', :'app_pass')
-WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ht_app')\gexec
+WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ht_app')
+\gexec
 
 SELECT format('CREATE ROLE ht_readonly LOGIN PASSWORD %L', :'readonly_pass')
-WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ht_readonly')\gexec
+WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ht_readonly')
+\gexec
 
 SELECT format('CREATE ROLE ht_backup LOGIN PASSWORD %L', :'backup_pass')
-WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ht_backup')\gexec
+WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ht_backup')
+\gexec
 
-SELECT format('ALTER ROLE ht_owner WITH LOGIN PASSWORD %L', :'owner_pass')\gexec
-SELECT format('ALTER ROLE ht_app WITH LOGIN PASSWORD %L', :'app_pass')\gexec
-SELECT format('ALTER ROLE ht_readonly WITH LOGIN PASSWORD %L', :'readonly_pass')\gexec
-SELECT format('ALTER ROLE ht_backup WITH LOGIN PASSWORD %L', :'backup_pass')\gexec
+SELECT format('ALTER ROLE ht_owner WITH LOGIN PASSWORD %L', :'owner_pass')
+\gexec
+SELECT format('ALTER ROLE ht_app WITH LOGIN PASSWORD %L', :'app_pass')
+\gexec
+SELECT format('ALTER ROLE ht_readonly WITH LOGIN PASSWORD %L', :'readonly_pass')
+\gexec
+SELECT format('ALTER ROLE ht_backup WITH LOGIN PASSWORD %L', :'backup_pass')
+\gexec
 
--- 2. База данных ───────────────────────────────────────────────────────────
+-- Владельцу схемы нужна возможность создавать теневую БД для prisma migrate dev.
+-- В промышленной эксплуатации это отдельная задача администратора БД.
+ALTER ROLE ht_owner CREATEDB;
+
+-- 2. База данных ──────────────────────────────────────────────────────────
 SELECT format('CREATE DATABASE habit_tracker OWNER ht_owner ENCODING %L TEMPLATE template0', 'UTF8')
-WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'habit_tracker')\gexec
+WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'habit_tracker')
+\gexec
 
 \connect habit_tracker
 
