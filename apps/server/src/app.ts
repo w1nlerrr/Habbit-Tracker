@@ -8,10 +8,13 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 
+import { API_PREFIX } from '@habit/shared';
+
 import { config } from './config/index.js';
 import { logger } from './infra/logger.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFound } from './middleware/not-found.js';
+import { authRouter } from './modules/auth/routes.js';
 import { healthRouter } from './modules/health/routes.js';
 
 /**
@@ -69,6 +72,7 @@ export function createApp(): express.Express {
   );
 
   app.use('/api', healthRouter);
+  app.use(`${API_PREFIX}/auth`, authRouter);
 
   app.use(notFound);
   app.use(errorHandler);
