@@ -19,6 +19,10 @@
     "test": "npm run test --workspaces --if-present",
     "db:migrate": "npm run db:migrate --workspace @habit/server",
     "db:seed": "npm run db:seed --workspace @habit/server",
-    "db:studio": "npm run db:studio --workspace @habit/server"
+    "db:studio": "npm run db:studio --workspace @habit/server",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.0"
   }
 }

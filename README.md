@@ -1,10 +1,37 @@
 # Habit Tracker — трекер привычек
 
+[![CI](https://github.com/w1nlerrr/Habbit-Tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/w1nlerrr/Habbit-Tracker/actions/workflows/ci.yml)
+![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=node.js&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 Учебный проект по специальности **09.02.07 «Информационные системы и программирование»**.
 
 Полноценное веб-приложение для отслеживания привычек: список привычек с расписанием,
 ежедневные отметки, текущая и максимальная серия дней подряд, календарь активности,
 статистика за неделю и месяц, резервное копирование и восстановление данных.
+
+## Скриншоты
+
+| Дашборд | Привычки |
+|---|---|
+| ![Дашборд](docs/screenshots/02-dashboard.png) | ![Привычки](docs/screenshots/03-habits.png) |
+
+| Календарь привычки | Статистика |
+|---|---|
+| ![Календарь активности](docs/screenshots/04-habit-details.png) | ![Статистика](docs/screenshots/05-stats.png) |
+
+<details>
+<summary>Вход и настройки</summary>
+
+![Вход](docs/screenshots/01-login.png)
+
+![Настройки](docs/screenshots/06-settings.png)
+
+</details>
+
 
 ## Стек
 
@@ -100,7 +127,9 @@ dev.bat            запуск в режиме разработки
 ## Документация
 
 - `docs/04-security-hardening.md` — усиление защиты PostgreSQL (scram-sha-256, localhost)
+- `docs/04-deployment.md` — развёртывание и запуск на локальном компьютере
 - `docs/05-backup-restore.md` — регламент резервного копирования и восстановления
+- `docs/06-github.md` — публикация проекта, релизы и CI
 - `docs/07-modules-mapping.md` — соответствие учебным модулям (ПМ02, ПМ04, ПМ11)
 
 ## Безопасность
